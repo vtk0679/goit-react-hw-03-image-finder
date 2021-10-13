@@ -1,6 +1,5 @@
 import { Component } from "react";
-import { createPortal } from "react-dom";
-import axios from "axios";
+import { ToastContainer } from "react-toastify";
 
 import "react-toastify/dist/ReactToastify.css";
 import "./App.css";
@@ -10,7 +9,7 @@ import ImageGallery from "./components/ImageGallery";
 import Button from "./components/Button/Button";
 import Loader from "./components/Loader";
 import Modal from "./components/Modal/Modal";
-import { ToastContainer, toast } from "react-toastify";
+import getImages from "./services/api";
 
 const modalRoot = document.querySelector("#modal-root");
 
@@ -35,7 +34,12 @@ export default class App extends Component {
       prevState.searchQuery !== this.state.searchQuery ||
       prevState.page !== this.state.page
     ) {
-      this.getImages();
+      getImages(this.state.searchQuery, this.state.page).then((newImages) => {
+        if (newImages.length)
+          this.setState((old) => ({
+            images: [...old.images, ...newImages],
+          }));
+      });
     }
     if (this.state.page > 1) {
       window.scrollTo({
@@ -59,33 +63,10 @@ export default class App extends Component {
     this.setState({ bigImg: largeImageURL });
   };
 
-  getImages = () => {
-    axios
-      .get(
-        `https://pixabay.com/api/?q=${this.state.searchQuery}&page=${this.state.page}&key=22945587-13dcce98a35cac559e6949163&image_type=photo&orientation=horizontal&per_page=12`
-      )
-      .then((resp) => {
-        const data = resp.data.hits;
-        if (data.length === 0) {
-          toast("Уточните критерии поиска!");
-        }
-        return this.setState((old) => ({
-          images: [...old.images, ...data],
-        }));
-      })
-      .catch((error) => {
-        console.log(error);
-      });
-  };
-
   handleKeyDown = (e) => {
     if (e.code === "Escape") {
       this.onCloseModal();
     }
-  };
-
-  handleClickOverlay = () => {
-    this.onCloseModal();
   };
 
   onLoadMore = () => {
@@ -95,13 +76,13 @@ export default class App extends Component {
   };
 
   render() {
-    return createPortal(
+    return (
       <>
         <SearchBar onSubmit={this.onSubmit} />
         <ImageGallery
           images={this.state.images}
           onItemClick={this.onItemClick}
-        ></ImageGallery>
+        />
         {this.state.loading && <Loader />}
         {this.state.images.length > 0 && (
           <Button onLoadMore={this.onLoadMore} />
@@ -111,11 +92,10 @@ export default class App extends Component {
           <Modal
             src={this.state.bigImg}
             onCloseModal={this.onCloseModal}
-            handleClickOverlay={this.handleClickOverlay}
+            modalRoot={modalRoot}
           />
         )}
-      </>,
-      modalRoot
+      </>
     );
   }
 }
