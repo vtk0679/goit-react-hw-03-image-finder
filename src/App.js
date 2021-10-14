@@ -22,13 +22,6 @@ export default class App extends Component {
     bigImg: null,
   };
 
-  componentDidMount() {
-    window.addEventListener("keydown", this.handleKeyDown);
-  }
-  componentWillUnmount() {
-    window.removeEventListener("keydown", this.handleKeyDown);
-  }
-
   componentDidUpdate(prevProps, prevState) {
     if (
       prevState.searchQuery !== this.state.searchQuery ||
@@ -61,12 +54,6 @@ export default class App extends Component {
 
   onItemClick = (largeImageURL) => {
     this.setState({ bigImg: largeImageURL });
-  };
-
-  handleKeyDown = (e) => {
-    if (e.code === "Escape") {
-      this.onCloseModal();
-    }
   };
 
   onLoadMore = () => {

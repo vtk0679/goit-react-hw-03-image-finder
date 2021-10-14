@@ -37,11 +37,11 @@
   background-color: black;
 }
 
-.CloseLogo {
+.IconClose {
   fill: rgb(21, 14, 27);
   transition: 500ms linear;
 }
 
-.closeModal:hover .CloseLogo {
+.closeModal:hover .IconClose {
   fill: rgb(238, 236, 240);
 }
